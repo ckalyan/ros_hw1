@@ -1,0 +1,18 @@
+<package>
+  <description brief="CS225b hw1">
+
+     hw1
+
+  </description>
+  <author>Team Kludge</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/hw1</url>
+  <depend package="std_msgs"/>
+  <depend package="rospy"/>
+  <depend package="sensor_msgs"/>
+  <depend package="rviz"/>
+
+</package>
+
+
