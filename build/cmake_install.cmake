@@ -1,4 +1,4 @@
-# Install script for directory: /afs/ir/users/d/p/dpursell/my_ros-pkg/pkgs/hw1
+# Install script for directory: /home/chetan/ros/ros/ros_hw1
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -7,7 +7,7 @@ ENDIF(NOT DEFINED CMAKE_INSTALL_PREFIX)
 STRING(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
 # Set the install configuration name.
-IF(NOT CMAKE_INSTALL_CONFIG_NAME)
+IF(NOT DEFINED CMAKE_INSTALL_CONFIG_NAME)
   IF(BUILD_TYPE)
     STRING(REGEX REPLACE "^[^A-Za-z0-9_]+" ""
            CMAKE_INSTALL_CONFIG_NAME "${BUILD_TYPE}")
@@ -15,7 +15,7 @@ IF(NOT CMAKE_INSTALL_CONFIG_NAME)
     SET(CMAKE_INSTALL_CONFIG_NAME "RelWithDebInfo")
   ENDIF(BUILD_TYPE)
   MESSAGE(STATUS "Install configuration: \"${CMAKE_INSTALL_CONFIG_NAME}\"")
-ENDIF(NOT CMAKE_INSTALL_CONFIG_NAME)
+ENDIF(NOT DEFINED CMAKE_INSTALL_CONFIG_NAME)
 
 # Set the component getting installed.
 IF(NOT CMAKE_INSTALL_COMPONENT)
@@ -37,7 +37,8 @@ IF(CMAKE_INSTALL_COMPONENT)
 ELSE(CMAKE_INSTALL_COMPONENT)
   SET(CMAKE_INSTALL_MANIFEST "install_manifest.txt")
 ENDIF(CMAKE_INSTALL_COMPONENT)
-FILE(WRITE "/afs/ir/users/d/p/dpursell/my_ros-pkg/pkgs/hw1/build/${CMAKE_INSTALL_MANIFEST}" "")
+
+FILE(WRITE "/home/chetan/ros/ros/ros_hw1/build/${CMAKE_INSTALL_MANIFEST}" "")
 FOREACH(file ${CMAKE_INSTALL_MANIFEST_FILES})
-  FILE(APPEND "/afs/ir/users/d/p/dpursell/my_ros-pkg/pkgs/hw1/build/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
+  FILE(APPEND "/home/chetan/ros/ros/ros_hw1/build/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
 ENDFOREACH(file)

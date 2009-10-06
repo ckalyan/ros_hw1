@@ -1,14 +1,15 @@
 #!/usr/bin/env python
-import roslib; roslib.load_manifest('hw1')
+import roslib; roslib.load_manifest('ros_hw1')
 import rospy
-import tf
-import math
-from sensor_msgs.msg import LaserScan
-from geometry_msgs.msg import Twist
-from geometry_msgs.msg import Vector3
+import tf	# needed to read odometry values
+import math	# not sure how this is used
+from sensor_msgs.msg import LaserScan	#reads laser readings
+from geometry_msgs.msg import Twist 	#gives out movement commands
+from geometry_msgs.msg import Vector3	#to specify the data for movement
 
-r2d = 180.0/3.14159
+r2d = 180.0/3.14159	# radians to degree conversion rate
 
+# LaserInterpreter class: is passed each laser reading, does some calculations
 class LaserInterpreter:
   def __init__(self): # constructor
     self.readings = []
@@ -28,17 +29,27 @@ class RobotPosition:
     self.initialized = False
     self.trans = [0,0]
     self.rot = 0
+
   def initialPos(self, t, r):
     self.trans0 = t
     self.rot0 = r[2]
+    rospy.loginfo ("initial values: %f, angle: %f",self.trans0[0],self.rot0)
+
   def positionNew(self, t, r):
     self.trans[0] = t[0] - self.trans0[0]
     self.trans[1] = t[1] - self.trans0[1]
     self.rot = r[2] - self.rot0
     self.logPosInfo()
-  def logPosInfo(self):
-    rospy.loginfo("Odometry: (%0.2f, %0.2f) at %0.2f degrees", self.trans[0], self.trans[1], self.rot[2]*r2d)
 
+  def logPosInfo(self):
+    rospy.loginfo("Odometry: (%0.2f, %0.2f) at %0.2f degrees", self.trans[0], self.trans[1], self.rot*r2d)
+
+class VelocityCommander:
+  def __init__(self):
+    self.linearV = [0,0,0]
+    self.angularV = [0,0,0]
+
+#global variables
 li = LaserInterpreter()	# global LaserInterpreter object
 rp = RobotPosition() # global RobotPosition object
 
@@ -46,6 +57,7 @@ def callback(reading):
   li.laserReadingNew(reading)
 
 def angles():
+	#initialize the node and subscribe to Laser and odom
   rospy.init_node('angles')
   rospy.loginfo('"Angles" node is awake')
   rospy.Subscriber("laser", LaserScan, callback) # listen to "laser"
@@ -54,6 +66,7 @@ def angles():
   rospy.loginfo("Subscribed to odometry frames")
   rate = rospy.Rate(10.0) # 10 Hz
   velPublish = rospy.Publisher("commands", Twist) # publish to "commands"
+	#initial odometry lookup
   while not rp.initialized:
     try:
       (trans, rot) = odoListener.lookupTransform('/odom', '/base_link', rospy.Time(0))
@@ -61,12 +74,29 @@ def angles():
     except (tf.LookupException, tf.ConnectivityException):
       continue
   rp.initialPos(trans, rot)
+
+
+	#keep reading odometry every 1/10s
   while not rospy.is_shutdown():
     try:
       (trans, rot) = odoListener.lookupTransform('/odom', '/base_link', rospy.Time(0))
     except (tf.LookupException, tf.ConnectivityException):
       continue
     rp.positionNew(trans, rot)
+	#move the robot now
+    xvel = 0
+    thetavel = 0 
+    dist_to_be_travelled = 4
+    if rp.trans[0] < dist_to_be_travelled:	# not yet travelled 10 m - move forward 
+      xvel = 0.5
+    elif rp.trans[0] >= dist_to_be_travelled and rp.rot < 150.0/r2d:	# travelled 10m - start turning quickly
+      thetavel = 20.0/r2d
+    elif rp.trans[0] >= dist_to_be_travelled and rp.rot < 170.0/r2d:	# getting close - slow down the turning
+      thetavel = 1.0/r2d
+    elif rp.trans[0] >= dist_to_be_travelled and rp.rot >= 180.0/r2d:	# travelled 10m and turned around - move forward again
+      xvel = 0.5
+    twist = Twist(Vector3(xvel,0,0),Vector3(0,0,thetavel))
+    velPublish.publish(twist)
     rate.sleep()
 
 if __name__ == '__main__':
